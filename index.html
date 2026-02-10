@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madden 2026 Franchise Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00ff88;
+            --secondary: #ff3366;
+            --bg-dark: #0a0e1a;
+            --bg-card: #141824;
+            --bg-hover: #1d2331;
+            --text-primary: #ffffff;
+            --text-secondary: #8892a6;
+            --border: #252b3d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-dark) 100%);
+            border-bottom: 2px solid var(--primary);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            to { left: 100%; }
+        }
+
+        .header h1 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background: linear-gradient(135deg, var(--primary) 0%, #00ccff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .upload-zone {
+            background: var(--bg-card);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-zone::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: var(--bg-hover);
+        }
+
+        .upload-zone:hover::before {
+            width: 500px;
+            height: 500px;
+        }
+
+        .upload-zone input {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            border-bottom: 2px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 1rem 2rem;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+        }
+
+        .nav-tab.active::after {
+            width: 100%;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.05), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .data-table {
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--bg-hover) 0%, var(--bg-card) 100%);
+        }
+
+        th {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--primary);
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .player-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .player-card:hover {
+            border-color: var(--primary);
+            transform: translateX(10px);
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .player-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .player-overall {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--primary);
+            background: rgba(0, 255, 136, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .player-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .info-value {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .search-box {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            color: var(--text-primary);
+            font-family: 'Roboto Mono', monospace;
+            width: 100%;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+
+        .section-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--primary);
+            margin: 2rem 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 30px;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .badge-offense {
+            background: rgba(255, 51, 102, 0.2);
+            color: var(--secondary);
+        }
+
+        .badge-defense {
+            background: rgba(0, 204, 255, 0.2);
+            color: #00ccff;
+        }
+
+        .badge-special {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+        }
+    </style>
+</head>
+<body>
+    <div class="grain-overlay"></div>
+    
+    <header class="header">
+        <h1>Madden 2026 Franchise Hub</h1>
+        <div class="subtitle">Your Ultimate Franchise Manager</div>
+    </header>
+
+    <div class="container">
+        <div id="uploadSection" class="upload-zone" onclick="document.getElementById('fileInput').click()">
+            <input type="file" id="fileInput" accept=".json" onchange="handleFileUpload(event)">
+            <div class="upload-icon">📊</div>
+            <h2>Import Your Franchise Data</h2>
+            <p style="color: var(--text-secondary); margin-top: 1rem;">
+                Click to upload your Madden 2026 franchise export (JSON format)
+            </p>
+        </div>
+
+        <div id="dataSection" style="display: none;">
+            <nav class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab('overview')">Overview</button>
+                <button class="nav-tab" onclick="switchTab('roster')">Roster</button>
+                <button class="nav-tab" onclick="switchTab('standings')">Standings</button>
+                <button class="nav-tab" onclick="switchTab('stats')">Weekly Stats</button>
+            </nav>
+
+            <div id="overview" class="tab-content active">
+                <h2 class="section-title">League Overview</h2>
+                <div class="stats-grid" id="overviewStats"></div>
+            </div>
+
+            <div id="roster" class="tab-content">
+                <h2 class="section-title">Team Roster</h2>
+                <input type="text" class="search-box" id="playerSearch" placeholder="Search players by name, position, or team..." onkeyup="filterPlayers()">
+                <div id="rosterContainer"></div>
+            </div>
+
+            <div id="standings" class="tab-content">
+                <h2 class="section-title">League Standings</h2>
+                <div id="standingsContainer"></div>
+            </div>
+
+            <div id="stats" class="tab-content">
+                <h2 class="section-title">Weekly Statistics</h2>
+                <div id="statsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let franchiseData = null;
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        franchiseData = JSON.parse(e.target.result);
+                        displayData();
+                    } catch (error) {
+                        alert('Error parsing JSON file. Please make sure it\'s a valid Madden franchise export.');
+                        console.error(error);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function displayData() {
+            document.getElementById('uploadSection').style.display = 'none';
+            document.getElementById('dataSection').style.display = 'block';
+            
+            displayOverview();
+            displayRoster();
+            displayStandings();
+            displayStats();
+        }
+
+        function displayOverview() {
+            const container = document.getElementById('overviewStats');
+            
+            // Example stats - customize based on your actual data structure
+            const stats = [
+                { label: 'Current Week', value: franchiseData.currentWeek || 'N/A' },
+                { label: 'Season', value: franchiseData.season || '2026' },
+                { label: 'Total Teams', value: franchiseData.teams?.length || 32 },
+                { label: 'Roster Size', value: franchiseData.roster?.length || 'N/A' },
+                { label: 'Games Played', value: franchiseData.gamesPlayed || 'N/A' },
+                { label: 'League Salary Cap', value: franchiseData.salaryCap || '$224M' }
+            ];
+
+            container.innerHTML = stats.map(stat => `
+                <div class="stat-card">
+                    <div class="stat-label">${stat.label}</div>
+                    <div class="stat-value">${stat.value}</div>
+                </div>
+            `).join('');
+        }
+
+        function displayRoster() {
+            const container = document.getElementById('rosterContainer');
+            const roster = franchiseData.roster || franchiseData.players || [];
+
+            if (roster.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👤</div>
+                        <h3>No Roster Data Found</h3>
+                        <p>Your franchise export doesn't contain roster information, or it's in a different format.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = roster.map(player => {
+                const positionType = getPositionType(player.position);
+                return `
+                    <div class="player-card" data-player-name="${player.name?.toLowerCase()}" data-position="${player.position?.toLowerCase()}" data-team="${player.team?.toLowerCase()}">
+                        <div class="player-header">
+                            <div>
+                                <div class="player-name">${player.name || 'Unknown Player'}</div>
+                                <span class="badge badge-${positionType}">${player.position || 'N/A'}</span>
+                            </div>
+                            <div class="player-overall">${player.overall || player.ovr || '--'}</div>
+                        </div>
+                        <div class="player-info">
+                            <div class="info-item">
+                                <span class="info-label">Team</span>
+                                <span class="info-value">${player.team || 'Free Agent'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Age</span>
+                                <span class="info-value">${player.age || 'N/A'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Number</span>
+                                <span class="info-value">${player.jerseyNumber || player.number || 'N/A'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Height</span>
+                                <span class="info-value">${player.height || 'N/A'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Weight</span>
+                                <span class="info-value">${player.weight ? player.weight + ' lbs' : 'N/A'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Salary</span>
+                                <span class="info-value">${player.salary ? '$' + (player.salary / 1000000).toFixed(1) + 'M' : 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getPositionType(position) {
+            if (!position) return 'offense';
+            const offense = ['QB', 'RB', 'FB', 'WR', 'TE', 'LT', 'LG', 'C', 'RG', 'RT'];
+            const defense = ['LE', 'RE', 'DT', 'LOLB', 'MLB', 'ROLB', 'CB', 'FS', 'SS', 'LB', 'DE'];
+            const special = ['K', 'P'];
+            
+            if (offense.includes(position.toUpperCase())) return 'offense';
+            if (defense.includes(position.toUpperCase())) return 'defense';
+            if (special.includes(position.toUpperCase())) return 'special';
+            return 'offense';
+        }
+
+        function displayStandings() {
+            const container = document.getElementById('standingsContainer');
+            const standings = franchiseData.standings || franchiseData.teams || [];
+
+            if (standings.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏆</div>
+                        <h3>No Standings Data Found</h3>
+                        <p>Your franchise export doesn't contain standings information.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Team</th>
+                                <th>W</th>
+                                <th>L</th>
+                                <th>T</th>
+                                <th>Win %</th>
+                                <th>PF</th>
+                                <th>PA</th>
+                                <th>Diff</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${standings.map((team, index) => `
+                                <tr>
+                                    <td><strong>${index + 1}</strong></td>
+                                    <td><strong>${team.name || team.teamName || 'Unknown'}</strong></td>
+                                    <td>${team.wins || team.w || 0}</td>
+                                    <td>${team.losses || team.l || 0}</td>
+                                    <td>${team.ties || team.t || 0}</td>
+                                    <td>${calculateWinPct(team)}</td>
+                                    <td>${team.pointsFor || team.pf || 0}</td>
+                                    <td>${team.pointsAgainst || team.pa || 0}</td>
+                                    <td style="color: ${(team.pointsFor - team.pointsAgainst) > 0 ? 'var(--primary)' : 'var(--secondary)'}">
+                                        ${(team.pointsFor - team.pointsAgainst) > 0 ? '+' : ''}${(team.pointsFor || 0) - (team.pointsAgainst || 0)}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function calculateWinPct(team) {
+            const wins = team.wins || team.w || 0;
+            const losses = team.losses || team.l || 0;
+            const ties = team.ties || team.t || 0;
+            const total = wins + losses + ties;
+            if (total === 0) return '.000';
+            return ((wins + (ties * 0.5)) / total).toFixed(3);
+        }
+
+        function displayStats() {
+            const container = document.getElementById('statsContainer');
+            const stats = franchiseData.weeklyStats || franchiseData.stats || [];
+
+            if (stats.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📈</div>
+                        <h3>No Weekly Stats Found</h3>
+                        <p>Your franchise export doesn't contain weekly statistics.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Week</th>
+                                <th>Player</th>
+                                <th>Team</th>
+                                <th>Position</th>
+                                <th>Stats</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${stats.map(stat => `
+                                <tr>
+                                    <td><strong>${stat.week || 'N/A'}</strong></td>
+                                    <td><strong>${stat.player || stat.playerName || 'Unknown'}</strong></td>
+                                    <td>${stat.team || 'N/A'}</td>
+                                    <td><span class="badge badge-${getPositionType(stat.position)}">${stat.position || 'N/A'}</span></td>
+                                    <td style="font-size: 0.85rem;">${formatStats(stat)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function formatStats(stat) {
+            const statParts = [];
+            if (stat.passingYards) statParts.push(`${stat.passingYards} pass yds`);
+            if (stat.passingTDs) statParts.push(`${stat.passingTDs} pass TDs`);
+            if (stat.rushingYards) statParts.push(`${stat.rushingYards} rush yds`);
+            if (stat.rushingTDs) statParts.push(`${stat.rushingTDs} rush TDs`);
+            if (stat.receivingYards) statParts.push(`${stat.receivingYards} rec yds`);
+            if (stat.receptions) statParts.push(`${stat.receptions} rec`);
+            if (stat.tackles) statParts.push(`${stat.tackles} tackles`);
+            if (stat.sacks) statParts.push(`${stat.sacks} sacks`);
+            if (stat.interceptions) statParts.push(`${stat.interceptions} INTs`);
+            
+            return statParts.length > 0 ? statParts.join(', ') : 'No stats available';
+        }
+
+        function filterPlayers() {
+            const searchTerm = document.getElementById('playerSearch').value.toLowerCase();
+            const playerCards = document.querySelectorAll('.player-card');
+
+            playerCards.forEach(card => {
+                const name = card.getAttribute('data-player-name') || '';
+                const position = card.getAttribute('data-position') || '';
+                const team = card.getAttribute('data-team') || '';
+                
+                if (name.includes(searchTerm) || position.includes(searchTerm) || team.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active from all nav buttons
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
