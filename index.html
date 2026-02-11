@@ -117,6 +117,64 @@
             padding: 2rem;
         }
 
+        .sync-status {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sync-status.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+
+        .sync-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .sync-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+        }
+
+        .sync-indicator.active {
+            background: var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .refresh-btn {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #00ccff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
         .upload-zone {
             background: var(--bg-card);
             border: 2px dashed var(--border);
@@ -455,6 +513,41 @@
             background: rgba(255, 165, 0, 0.2);
             color: #ffa500;
         }
+
+        .api-endpoint-box {
+            background: var(--bg-card);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .endpoint-url {
+            background: var(--bg-dark);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Roboto Mono', monospace;
+            color: var(--primary);
+            word-break: break-all;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        .copy-btn {
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Roboto Mono', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -466,10 +559,36 @@
     </header>
 
     <div class="container">
+        <!-- Auto-Sync Status -->
+        <div class="sync-status" id="syncStatus">
+            <div class="sync-info">
+                <div class="sync-indicator" id="syncIndicator"></div>
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.1em;">Sync Status</div>
+                    <div id="syncStatusText">No data synced yet</div>
+                </div>
+            </div>
+            <button class="refresh-btn" onclick="checkForUpdates()">🔄 Check for Updates</button>
+        </div>
+
+        <!-- API Endpoint Info -->
+        <div class="api-endpoint-box">
+            <h3 style="margin-bottom: 1rem;">📡 Companion App URL</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Enter this URL in your Madden 2026 Companion App to enable automatic syncing:
+            </p>
+            <div class="endpoint-url" id="apiEndpoint">Loading...</div>
+            <button class="copy-btn" onclick="copyEndpoint()">📋 Copy URL</button>
+            <p style="color: var(--text-secondary); margin-top: 1rem; font-size: 0.85rem;">
+                After entering this URL in the app, your franchise data will automatically sync here!
+            </p>
+        </div>
+
+        <!-- Manual Upload (Fallback) -->
         <div id="uploadSection" class="upload-zone" onclick="document.getElementById('fileInput').click()">
             <input type="file" id="fileInput" accept=".json" onchange="handleFileUpload(event)">
             <div class="upload-icon">📊</div>
-            <h2>Import Your Franchise Data</h2>
+            <h2>Or Upload Manually</h2>
             <p style="color: var(--text-secondary); margin-top: 1rem;">
                 Click to upload your Madden 2026 franchise export (JSON format)
             </p>
@@ -508,6 +627,54 @@
 
     <script>
         let franchiseData = null;
+        const API_ENDPOINT = window.location.origin + '/.netlify/functions/franchise-data';
+
+        // Display API endpoint on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('apiEndpoint').textContent = API_ENDPOINT;
+            checkForUpdates();
+        });
+
+        function copyEndpoint() {
+            navigator.clipboard.writeText(API_ENDPOINT).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        async function checkForUpdates() {
+            const indicator = document.getElementById('syncIndicator');
+            const statusText = document.getElementById('syncStatusText');
+            const syncStatus = document.getElementById('syncStatus');
+            
+            statusText.textContent = 'Checking for updates...';
+            
+            try {
+                const response = await fetch(API_ENDPOINT);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    franchiseData = data;
+                    
+                    indicator.classList.add('active');
+                    syncStatus.classList.add('active');
+                    statusText.textContent = `Last synced: ${new Date().toLocaleString()}`;
+                    
+                    displayData();
+                } else {
+                    indicator.classList.remove('active');
+                    syncStatus.classList.remove('active');
+                    statusText.textContent = 'No data available - sync from companion app or upload manually';
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                statusText.textContent = 'Sync not configured - upload manually or set up backend';
+            }
+        }
 
         function handleFileUpload(event) {
             const file = event.target.files[0];
@@ -517,6 +684,11 @@
                     try {
                         franchiseData = JSON.parse(e.target.result);
                         displayData();
+                        
+                        const indicator = document.getElementById('syncIndicator');
+                        const statusText = document.getElementById('syncStatusText');
+                        indicator.classList.add('active');
+                        statusText.textContent = `Manually uploaded: ${new Date().toLocaleString()}`;
                     } catch (error) {
                         alert('Error parsing JSON file. Please make sure it\'s a valid Madden franchise export.');
                         console.error(error);
@@ -527,7 +699,6 @@
         }
 
         function displayData() {
-            document.getElementById('uploadSection').style.display = 'none';
             document.getElementById('dataSection').style.display = 'block';
             
             displayOverview();
@@ -539,7 +710,6 @@
         function displayOverview() {
             const container = document.getElementById('overviewStats');
             
-            // Example stats - customize based on your actual data structure
             const stats = [
                 { label: 'Current Week', value: franchiseData.currentWeek || 'N/A' },
                 { label: 'Season', value: franchiseData.season || '2026' },
@@ -764,20 +934,20 @@
         }
 
         function switchTab(tabName) {
-            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
             
-            // Remove active from all nav buttons
             document.querySelectorAll('.nav-tab').forEach(btn => {
                 btn.classList.remove('active');
             });
             
-            // Show selected tab
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
         }
+
+        // Auto-refresh every 5 minutes
+        setInterval(checkForUpdates, 300000);
     </script>
 </body>
 </html>
