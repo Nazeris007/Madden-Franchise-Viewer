@@ -98,12 +98,15 @@ exports.handler = async (event, context) => {
       }
       
       const data = await response.json();
-      
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify(data)
-      };
+
+// JSONBin wraps data in a "record" property, unwrap it
+const franchiseData = data.record || data;
+
+return {
+  statusCode: 200,
+  headers,
+  body: JSON.stringify(franchiseData)
+};
     } catch (error) {
       return {
         statusCode: 500,
